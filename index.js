@@ -48,12 +48,14 @@ class Keyboard {
   }
 }
 
-// Canvas API-wrappers for wasm
+// Canvas API-wrappers for WASM
 
 const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d');
 
 const _setStrokeStyle = (r, g, b) => ctx.strokeStyle = `rgb(${r},${g},${b})`;
+const _fillText = (text, x, y) => ctx.fillText(text, x, y);
+const _setTextSize = size => ctx.font = `${size}px monospace`;
 const _setFillStyle = (r, g, b) => ctx.fillStyle = `rgb(${r},${g},${b})`;
 const _setLineWidth = width => ctx.lineWidth = width;
 const _setLineDash = (dashLength, spaceLength) => ctx.setLineDash([dashLength, spaceLength]);
@@ -95,7 +97,9 @@ const init = async emsdkEnvironment => {
     _fillRect,
     _clearRect,
     _drawLine,
-    _conlog
+    _conlog,
+    _fillText,
+    _setTextSize    
   };
 
   const {instance: {exports: pong}} = await WebAssembly.instantiateStreaming(

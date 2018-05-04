@@ -10,6 +10,7 @@
 #define BALL_SIZE 16
 #define BALL_INITIAL_VELOCITY 100.0 /* px/s */
 #define BALL_VELOCITY_INCREMENT 10.0 /* px/s */
+#define FONT_SIZE 64
 
 typedef struct RGB {
   int r;
@@ -47,7 +48,8 @@ extern void setStrokeStyle(int r, int g, int b);
 extern void setLineWidth(int width);
 extern void setLineDash(int dashLength, int spaceLength);
 extern void drawLine(int x0, int y0, int x1, int y1);
-extern void conlog(int a);
+extern void fillText(int text, int x, int y);
+extern void setTextSize(int size);
 
 void setFill(RGB color) {
   setFillStyle(color.r, color.g, color.b);
@@ -136,6 +138,21 @@ void drawObject(Rect o) {
   fillRect(o.x, o.y, o.width, o.height);
 }
 
+void drawScores() {
+  setTextSize(FONT_SIZE);
+  fillText(player1.score, WIDTH/2 - FONT_SIZE, FONT_SIZE*1.25);
+  fillText(player2.score, WIDTH/2 + FONT_SIZE/2, FONT_SIZE*1.25);
+}
+
+void resetGame(Player *winner, Ball *ball, int xDir) {
+  (*winner).score++;
+  (*ball).sphere.x = WIDTH/2 - BALL_SIZE/2;
+  (*ball).sphere.y = WALL_SIZE;
+  (*ball).dir.x = xDir;
+  (*ball).dir.y = 1;
+  (*ball).velocity = BALL_INITIAL_VELOCITY;
+}
+
 void drawCourt() {
   setFill(black);
   fillRect(0, 0, WIDTH, HEIGHT);
@@ -176,11 +193,18 @@ void checkCollisions(Ball *ball, int player1dir, int player2dir) {
       (*ball).dir.y = (*ball).dir.y * player2dir;
     }    
   }
+
+  if ((*ball).sphere.x < 0) {
+    resetGame(&player2, ball, 1);
+  } else if (((*ball).sphere.x + (*ball).sphere.width) > WIDTH) {
+    resetGame(&player1, ball, -1);
+  }
 }
 
 void tick(float delta, int player1dir, int player2dir) {
   drawCourt();
-
+  drawScores();
+ 
   checkCollisions(&ball, player1dir, player2dir);
 
   movePlayer(&player1, player1dir, delta);

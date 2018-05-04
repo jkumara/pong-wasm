@@ -7,10 +7,12 @@
  (import "env" "memoryBase" (global $memoryBase i32))
  (import "env" "_drawLine" (func $_drawLine (param i32 i32 i32 i32)))
  (import "env" "_fillRect" (func $_fillRect (param i32 i32 i32 i32)))
+ (import "env" "_fillText" (func $_fillText (param i32 i32 i32)))
  (import "env" "_setFillStyle" (func $_setFillStyle (param i32 i32 i32)))
  (import "env" "_setLineDash" (func $_setLineDash (param i32 i32)))
  (import "env" "_setLineWidth" (func $_setLineWidth (param i32)))
  (import "env" "_setStrokeStyle" (func $_setStrokeStyle (param i32 i32 i32)))
+ (import "env" "_setTextSize" (func $_setTextSize (param i32)))
  (global $STACKTOP (mut i32) (i32.const 0))
  (global $STACK_MAX (mut i32) (i32.const 0))
  (global $_ball i32 (i32.const 100))
@@ -20,17 +22,19 @@
  (global $_player2 i32 (i32.const 80))
  (global $_walls i32 (i32.const 12))
  (global $_white i32 (i32.const 0))
- (global $fp$_checkCollisions i32 (i32.const 10))
+ (global $fp$_checkCollisions i32 (i32.const 12))
  (global $fp$_clamp i32 (i32.const 3))
  (global $fp$_doesCollide i32 (i32.const 5))
- (global $fp$_drawCourt i32 (i32.const 9))
+ (global $fp$_drawCourt i32 (i32.const 11))
  (global $fp$_drawObject i32 (i32.const 8))
+ (global $fp$_drawScores i32 (i32.const 9))
  (global $fp$_isInBounds i32 (i32.const 4))
  (global $fp$_moveBall i32 (i32.const 7))
  (global $fp$_movePlayer i32 (i32.const 6))
+ (global $fp$_resetGame i32 (i32.const 10))
  (global $fp$_setFill i32 (i32.const 1))
  (global $fp$_setStroke i32 (i32.const 2))
- (global $fp$_tick i32 (i32.const 11))
+ (global $fp$_tick i32 (i32.const 13))
  (data (get_global $memoryBase) "\ff\00\00\00\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00 \03\00\00\10\00\00\00\00\00\00\00H\02\00\00 \03\00\00\10\00\00\00\90\01\00\00\00\00\00\00\90\01\00\00X\02\00\00\00\00\00\00\0c\01\00\00\10\00\00\00@\00\00\00\00\00\00\00\10\03\00\00\0c\01\00\00\10\00\00\00@\00\00\00\00\00\00\00\88\01\00\00\10\00\00\00\10\00\00\00\10\00\00\00\00\00\80?\00\00\80?\00\00\c8B")
  (export "__post_instantiate" (func $__post_instantiate))
  (export "_checkCollisions" (func $_checkCollisions))
@@ -38,9 +42,11 @@
  (export "_doesCollide" (func $_doesCollide))
  (export "_drawCourt" (func $_drawCourt))
  (export "_drawObject" (func $_drawObject))
+ (export "_drawScores" (func $_drawScores))
  (export "_isInBounds" (func $_isInBounds))
  (export "_moveBall" (func $legalstub$_moveBall))
  (export "_movePlayer" (func $legalstub$_movePlayer))
+ (export "_resetGame" (func $_resetGame))
  (export "_setFill" (func $_setFill))
  (export "_setStroke" (func $_setStroke))
  (export "_tick" (func $legalstub$_tick))
@@ -56,13 +62,15 @@
  (export "fp$_doesCollide" (global $fp$_doesCollide))
  (export "fp$_drawCourt" (global $fp$_drawCourt))
  (export "fp$_drawObject" (global $fp$_drawObject))
+ (export "fp$_drawScores" (global $fp$_drawScores))
  (export "fp$_isInBounds" (global $fp$_isInBounds))
  (export "fp$_moveBall" (global $fp$_moveBall))
  (export "fp$_movePlayer" (global $fp$_movePlayer))
+ (export "fp$_resetGame" (global $fp$_resetGame))
  (export "fp$_setFill" (global $fp$_setFill))
  (export "fp$_setStroke" (global $fp$_setStroke))
  (export "fp$_tick" (global $fp$_tick))
- (func $_setFill (; 6 ;) (param $0 i32)
+ (func $_setFill (; 8 ;) (param $0 i32)
   (call $_setFillStyle
    (i32.load
     (get_local $0)
@@ -75,7 +83,7 @@
    )
   )
  )
- (func $_setStroke (; 7 ;) (param $0 i32)
+ (func $_setStroke (; 9 ;) (param $0 i32)
   (call $_setStrokeStyle
    (i32.load
     (get_local $0)
@@ -88,7 +96,7 @@
    )
   )
  )
- (func $_clamp (; 8 ;) (param $0 i32) (param $1 i32) (param $2 i32) (param $3 i32) (result i32)
+ (func $_clamp (; 10 ;) (param $0 i32) (param $1 i32) (param $2 i32) (param $3 i32) (result i32)
   (select
    (get_local $2)
    (select
@@ -111,7 +119,7 @@
    )
   )
  )
- (func $_isInBounds (; 9 ;) (param $0 i32) (param $1 i32) (result i32)
+ (func $_isInBounds (; 11 ;) (param $0 i32) (param $1 i32) (result i32)
   (local $2 f32)
   (local $3 i32)
   (if (result i32)
@@ -174,7 +182,7 @@
    (i32.const 0)
   )
  )
- (func $_doesCollide (; 10 ;) (param $0 i32) (param $1 i32) (result i32)
+ (func $_doesCollide (; 12 ;) (param $0 i32) (param $1 i32) (result i32)
   (local $2 i32)
   (local $3 i32)
   (local $4 i32)
@@ -355,7 +363,7 @@
   )
   (get_local $0)
  )
- (func $_movePlayer (; 11 ;) (param $0 i32) (param $1 i32) (param $2 f32)
+ (func $_movePlayer (; 13 ;) (param $0 i32) (param $1 i32) (param $2 f32)
   (local $3 i32)
   (i32.store
    (tee_local $3
@@ -390,7 +398,7 @@
    )
   )
  )
- (func $_moveBall (; 12 ;) (param $0 i32) (param $1 f32)
+ (func $_moveBall (; 14 ;) (param $0 i32) (param $1 f32)
   (local $2 i32)
   (local $3 i32)
   (set_local $3
@@ -452,7 +460,7 @@
    (get_local $3)
   )
  )
- (func $_drawObject (; 13 ;) (param $0 i32)
+ (func $_drawObject (; 15 ;) (param $0 i32)
   (local $1 i32)
   (set_local $1
    (get_global $STACKTOP)
@@ -502,7 +510,65 @@
    (get_local $1)
   )
  )
- (func $_drawCourt (; 14 ;)
+ (func $_drawScores (; 16 ;)
+  (call $_setTextSize
+   (i32.const 64)
+  )
+  (call $_fillText
+   (i32.load offset=76
+    (get_global $memoryBase)
+   )
+   (i32.const 336)
+   (i32.const 80)
+  )
+  (call $_fillText
+   (i32.load offset=96
+    (get_global $memoryBase)
+   )
+   (i32.const 432)
+   (i32.const 80)
+  )
+ )
+ (func $_resetGame (; 17 ;) (param $0 i32) (param $1 i32) (param $2 i32)
+  (local $3 i32)
+  (i32.store
+   (tee_local $3
+    (i32.add
+     (get_local $0)
+     (i32.const 16)
+    )
+   )
+   (i32.add
+    (i32.load
+     (get_local $3)
+    )
+    (i32.const 1)
+   )
+  )
+  (i32.store
+   (get_local $1)
+   (i32.const 392)
+  )
+  (i32.store offset=4
+   (get_local $1)
+   (i32.const 16)
+  )
+  (f32.store offset=16
+   (get_local $1)
+   (f32.convert_s/i32
+    (get_local $2)
+   )
+  )
+  (f32.store offset=20
+   (get_local $1)
+   (f32.const 1)
+  )
+  (f32.store offset=24
+   (get_local $1)
+   (f32.const 100)
+  )
+ )
+ (func $_drawCourt (; 18 ;)
   (local $0 i32)
   (local $1 i32)
   (local $2 i32)
@@ -673,7 +739,7 @@
    (get_local $0)
   )
  )
- (func $_checkCollisions (; 15 ;) (param $0 i32) (param $1 i32) (param $2 i32)
+ (func $_checkCollisions (; 19 ;) (param $0 i32) (param $1 i32) (param $2 i32)
   (local $3 i32)
   (local $4 i32)
   (local $5 i32)
@@ -702,7 +768,7 @@
     (i32.const 16)
    )
   )
-  (set_local $6
+  (set_local $7
    (i32.add
     (get_local $0)
     (i32.const 20)
@@ -742,7 +808,7 @@
      (i32.store
       (get_local $4)
       (i32.load
-       (tee_local $7
+       (tee_local $6
         (i32.add
          (i32.add
           (get_global $memoryBase)
@@ -759,19 +825,19 @@
      (i32.store offset=4
       (get_local $4)
       (i32.load offset=4
-       (get_local $7)
+       (get_local $6)
       )
      )
      (i32.store offset=8
       (get_local $4)
       (i32.load offset=8
-       (get_local $7)
+       (get_local $6)
       )
      )
      (i32.store offset=12
       (get_local $4)
       (i32.load offset=12
-       (get_local $7)
+       (get_local $6)
       )
      )
      (if
@@ -780,10 +846,10 @@
        (get_local $4)
       )
       (f32.store
-       (get_local $6)
+       (get_local $7)
        (f32.neg
         (f32.load
-         (get_local $6)
+         (get_local $7)
         )
        )
       )
@@ -805,7 +871,7 @@
    )
   )
   (i32.store
-   (tee_local $7
+   (tee_local $6
     (i32.add
      (get_local $3)
      (i32.const 4)
@@ -907,7 +973,7 @@
    )
   )
   (i32.store
-   (get_local $7)
+   (get_local $6)
    (i32.load
     (get_local $8)
    )
@@ -960,7 +1026,7 @@
    )
    (block
     (f32.store
-     (tee_local $7
+     (tee_local $6
       (i32.add
        (get_local $0)
        (i32.const 16)
@@ -968,12 +1034,12 @@
      )
      (f32.neg
       (f32.load
-       (get_local $7)
+       (get_local $6)
       )
      )
     )
     (f32.store
-     (tee_local $0
+     (tee_local $6
       (i32.add
        (get_local $0)
        (i32.const 24)
@@ -981,7 +1047,7 @@
      )
      (f32.add
       (f32.load
-       (get_local $0)
+       (get_local $6)
       )
       (f32.const 10)
      )
@@ -995,10 +1061,10 @@
       (get_local $5)
      )
      (f32.store
-      (get_local $6)
+      (get_local $7)
       (f32.mul
        (f32.load
-        (get_local $6)
+        (get_local $7)
        )
        (f32.convert_s/i32
         (get_local $1)
@@ -1015,10 +1081,10 @@
       (get_local $4)
      )
      (f32.store
-      (get_local $6)
+      (get_local $7)
       (f32.mul
        (f32.load
-        (get_local $6)
+        (get_local $7)
        )
        (f32.convert_s/i32
         (get_local $2)
@@ -1028,11 +1094,48 @@
     )
    )
   )
+  (if
+   (i32.lt_s
+    (tee_local $1
+     (i32.load
+      (get_local $0)
+     )
+    )
+    (i32.const 0)
+   )
+   (call $_resetGame
+    (i32.add
+     (get_global $memoryBase)
+     (i32.const 80)
+    )
+    (get_local $0)
+    (i32.const 1)
+   )
+   (if
+    (i32.gt_s
+     (i32.add
+      (i32.load offset=8
+       (get_local $0)
+      )
+      (get_local $1)
+     )
+     (i32.const 800)
+    )
+    (call $_resetGame
+     (i32.add
+      (get_global $memoryBase)
+      (i32.const 60)
+     )
+     (get_local $0)
+     (i32.const -1)
+    )
+   )
+  )
   (set_global $STACKTOP
    (get_local $3)
   )
  )
- (func $_tick (; 16 ;) (param $0 f32) (param $1 i32) (param $2 i32)
+ (func $_tick (; 20 ;) (param $0 f32) (param $1 i32) (param $2 i32)
   (local $3 i32)
   (local $4 i32)
   (set_local $3
@@ -1045,6 +1148,7 @@
    )
   )
   (call $_drawCourt)
+  (call $_drawScores)
   (call $_checkCollisions
    (i32.add
     (get_global $memoryBase)
@@ -1179,10 +1283,10 @@
    (get_local $3)
   )
  )
- (func $runPostSets (; 17 ;)
+ (func $runPostSets (; 21 ;)
   (nop)
  )
- (func $__post_instantiate (; 18 ;)
+ (func $__post_instantiate (; 22 ;)
   (set_global $STACKTOP
    (i32.add
     (get_global $memoryBase)
@@ -1197,7 +1301,7 @@
   )
   (call $runPostSets)
  )
- (func $legalstub$_moveBall (; 19 ;) (param $0 i32) (param $1 f64)
+ (func $legalstub$_moveBall (; 23 ;) (param $0 i32) (param $1 f64)
   (call $_moveBall
    (get_local $0)
    (f32.demote/f64
@@ -1205,7 +1309,7 @@
    )
   )
  )
- (func $legalstub$_movePlayer (; 20 ;) (param $0 i32) (param $1 i32) (param $2 f64)
+ (func $legalstub$_movePlayer (; 24 ;) (param $0 i32) (param $1 i32) (param $2 f64)
   (call $_movePlayer
    (get_local $0)
    (get_local $1)
@@ -1214,7 +1318,7 @@
    )
   )
  )
- (func $legalstub$_tick (; 21 ;) (param $0 f64) (param $1 i32) (param $2 i32)
+ (func $legalstub$_tick (; 25 ;) (param $0 f64) (param $1 i32) (param $2 i32)
   (call $_tick
    (f32.demote/f64
     (get_local $0)

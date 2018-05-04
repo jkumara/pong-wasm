@@ -114,9 +114,16 @@ const init = async emsdkEnvironment => {
     const delta = currentTickTime - previousTickTime;
 
     if (delta > fpsLimit) {
-      const player1dir = keyboard.isKeyDown(KEYS.ARROW_UP) ? DIR.UP : keyboard.isKeyDown(KEYS.ARROW_DOWN) ? DIR.DOWN : DIR.STILL;
-      const player2dir = keyboard.isKeyDown(KEYS.W) ? DIR.UP : keyboard.isKeyDown(KEYS.S) ? DIR.DOWN : DIR.STILL;
+      const player1dir =
+        keyboard.isKeyDown(KEYS.W) ? DIR.UP :
+        keyboard.isKeyDown(KEYS.S) ? DIR.DOWN :
+        DIR.STILL;
 
+      const player2dir =
+        keyboard.isKeyDown(KEYS.ARROW_UP) ? DIR.UP :
+        keyboard.isKeyDown(KEYS.ARROW_DOWN) ? DIR.DOWN :
+        DIR.STILL;
+      
       pong._tick(delta, player1dir, player2dir);
       previousTickTime = currentTickTime - (delta % fpsLimit);
     }  

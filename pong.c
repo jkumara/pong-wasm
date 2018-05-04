@@ -1,11 +1,15 @@
+#include <stdbool.h>
+
 #define WIDTH 800
 #define HEIGHT 600
 #define WALL_SIZE 16
 #define LINE_WIDTH 8
 #define PADDLE_WIDTH 16
 #define PADDLE_HEIGHT 64
-#define PADDLE_VELOCITY 150.0 /* Velocity in pixels per second */
+#define PADDLE_VELOCITY 300.0 /* px/s */
 #define BALL_SIZE 16
+#define BALL_INITIAL_VELOCITY 100.0 /* px/s */
+#define BALL_VELOCITY_INCREMENT 10.0 /* px/s */
 
 typedef struct RGB {
   int r;
@@ -29,6 +33,12 @@ typedef struct Player {
   Rect paddle;
   int score;  
 } Player;
+
+typedef struct Ball {
+  Rect sphere; /* ironic naming */
+  Vec2 dir;
+  float velocity;
+} Ball;
 
 extern void fillRect(int x, int y, int width, int height);
 extern void clearRect(int x, int y, int width, int height);
@@ -55,6 +65,27 @@ int clamp(int value, int valueOffset, int min, int max) {
   return (value + valueOffset) > max ? max - valueOffset : value;
 }
 
+bool isInBounds(Vec2 point, Rect box) {
+  return point.x > box.x && point.x < (box.x + box.width) && point.y > box.y && point.y < (box.y + box.height);
+}
+
+bool doesCollide(Rect a, Rect b) {
+  Vec2 corners[4] = {
+    {a.x, a.y},
+    {a.x + a.width, a.y},
+    {a.x + a.width, a.y + a.height},
+    {a.x, a.y + a.height}
+  };
+
+  for (int i = 0; i < 4; i++) {
+    if (isInBounds(corners[i], b)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 RGB white = {255, 255, 255};
 RGB black = {0, 0, 0};
 
@@ -75,6 +106,12 @@ Player player2 = {
   0
 };
 
+Ball ball = {
+  {WIDTH/2 - BALL_SIZE/2, WALL_SIZE, BALL_SIZE, BALL_SIZE},
+  {1, 1},
+  BALL_INITIAL_VELOCITY
+};
+
 void movePlayer(Player *player, int direction, float delta) {
   int curY = (*player).paddle.y;
   float deltaY = (delta / 1000 * PADDLE_VELOCITY);
@@ -82,10 +119,21 @@ void movePlayer(Player *player, int direction, float delta) {
   (*player).paddle.y = clamp(newY, (*player).paddle.height, WALL_SIZE, HEIGHT - WALL_SIZE);
 }
 
-void drawPlayer(Player player) {
+void moveBall(Ball *ball, float delta) {
+  int curX = (*ball).sphere.x;
+  int curY = (*ball).sphere.y;
+
+  float deltaPos = delta / 1000 * (*ball).velocity;
+  int newX = curX + (int)deltaPos * (*ball).dir.x;
+  int newY = curY + (int)deltaPos * (*ball).dir.y;
+
+  (*ball).sphere.x = newX;
+  (*ball).sphere.y = newY;
+}
+
+void drawObject(Rect o) {
   setFill(white);
-  Rect p = player.paddle;
-  fillRect(p.x, p.y, p.width, p.height);
+  fillRect(o.x, o.y, o.width, o.height);
 }
 
 void drawCourt() {
@@ -93,10 +141,10 @@ void drawCourt() {
   fillRect(0, 0, WIDTH, HEIGHT);
 
   setFill(white);
+
   int length = sizeof(walls) / sizeof(Rect);
   for (int i = 0; i < length; i++) {
-    Rect r = walls[i];
-    fillRect(r.x, r.y, r.width, r.height);
+    drawObject(walls[i]);
   }
 
   setStroke(white);
@@ -105,12 +153,41 @@ void drawCourt() {
   drawLine(line.x, line.y, line.width, line.height);  
 }
 
+void checkCollisions(Ball *ball, int player1dir, int player2dir) {
+  int length = sizeof(walls) / sizeof(Rect);
+  for (int i = 0; i < length; i++) {
+    if (doesCollide((*ball).sphere, walls[i])) {
+      (*ball).dir.y = (*ball).dir.y * -1;
+    }
+  }
+
+  bool collideWithPlayer1 = doesCollide((*ball).sphere, player1.paddle);
+  bool collideWithPlayer2 = doesCollide((*ball).sphere, player2.paddle);
+
+  if (collideWithPlayer1 || collideWithPlayer2) {
+    (*ball).dir.x = (*ball).dir.x * -1;
+    (*ball).velocity = (*ball).velocity + BALL_VELOCITY_INCREMENT;
+    
+    if (collideWithPlayer1 && (player1dir != 0)) {
+      (*ball).dir.y = (*ball).dir.y * player1dir;
+    }
+
+    if (collideWithPlayer2 && (player2dir != 0)) {
+      (*ball).dir.y = (*ball).dir.y * player2dir;
+    }    
+  }
+}
+
 void tick(float delta, int player1dir, int player2dir) {
   drawCourt();
 
+  checkCollisions(&ball, player1dir, player2dir);
+
   movePlayer(&player1, player1dir, delta);
   movePlayer(&player2, player2dir, delta);
+  moveBall(&ball, delta);
 
-  drawPlayer(player1);
-  drawPlayer(player2);
+  drawObject(ball.sphere);
+  drawObject(player1.paddle);
+  drawObject(player2.paddle);
 }

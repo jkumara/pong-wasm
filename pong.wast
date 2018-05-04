@@ -518,14 +518,14 @@
    (i32.load offset=76
     (get_global $memoryBase)
    )
-   (i32.const 336)
+   (i32.const 304)
    (i32.const 80)
   )
   (call $_fillText
    (i32.load offset=96
     (get_global $memoryBase)
    )
-   (i32.const 432)
+   (i32.const 464)
    (i32.const 80)
   )
  )

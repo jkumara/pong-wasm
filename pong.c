@@ -140,8 +140,8 @@ void drawObject(Rect o) {
 
 void drawScores() {
   setTextSize(FONT_SIZE);
-  fillText(player1.score, WIDTH/2 - FONT_SIZE, FONT_SIZE*1.25);
-  fillText(player2.score, WIDTH/2 + FONT_SIZE/2, FONT_SIZE*1.25);
+  fillText(player1.score, WIDTH/2 - FONT_SIZE * 1.5, FONT_SIZE*1.25);
+  fillText(player2.score, WIDTH/2 + FONT_SIZE, FONT_SIZE*1.25);
 }
 
 void resetGame(Player *winner, Ball *ball, int xDir) {

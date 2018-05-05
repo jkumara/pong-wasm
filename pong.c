@@ -6,10 +6,10 @@
 #define LINE_WIDTH 8
 #define PADDLE_WIDTH 16
 #define PADDLE_HEIGHT 64
-#define PADDLE_VELOCITY 300.0 /* px/s */
+#define PADDLE_VELOCITY 400.0 /* px/s */
 #define BALL_SIZE 16
-#define BALL_INITIAL_VELOCITY 100.0 /* px/s */
-#define BALL_VELOCITY_INCREMENT 10.0 /* px/s */
+#define BALL_INITIAL_VELOCITY 150.0 /* px/s */
+#define BALL_VELOCITY_INCREMENT 25.0 /* px/s */
 #define FONT_SIZE 64
 
 typedef struct RGB {

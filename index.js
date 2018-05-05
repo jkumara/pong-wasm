@@ -1,4 +1,3 @@
-const FPS = 60;
 const DIR = {
   UP: -1,
   DOWN: 1,
@@ -108,32 +107,30 @@ const init = async emsdkEnvironment => {
   );
 
   const keyboard = new Keyboard();
-  const fpsLimit = 1000 / FPS;
-  let previousTickTime = performance.now();
-  
-  const main = () => {
+
+  let previousTickTime = 0;
+
+  const main = currentTickTime => {
     requestAnimationFrame(main);
 
-    const currentTickTime = performance.now();
     const delta = currentTickTime - previousTickTime;
+    console.log(delta);
 
-    if (delta > fpsLimit) {
-      const player1dir =
-        keyboard.isKeyDown(KEYS.W) ? DIR.UP :
-        keyboard.isKeyDown(KEYS.S) ? DIR.DOWN :
-        DIR.STILL;
+    const player1dir =
+      keyboard.isKeyDown(KEYS.W) ? DIR.UP :
+      keyboard.isKeyDown(KEYS.S) ? DIR.DOWN :
+      DIR.STILL;
 
-      const player2dir =
-        keyboard.isKeyDown(KEYS.ARROW_UP) ? DIR.UP :
-        keyboard.isKeyDown(KEYS.ARROW_DOWN) ? DIR.DOWN :
-        DIR.STILL;
-      
-      pong._tick(delta, player1dir, player2dir);
-      previousTickTime = currentTickTime - (delta % fpsLimit);
-    }  
+    const player2dir =
+      keyboard.isKeyDown(KEYS.ARROW_UP) ? DIR.UP :
+      keyboard.isKeyDown(KEYS.ARROW_DOWN) ? DIR.DOWN :
+      DIR.STILL;
+    
+    pong._tick(delta, player1dir, player2dir);
+    previousTickTime = currentTickTime;
   };
 
-  main();
+  requestAnimationFrame(main);
 };
 
 init(emsdkEnvironment);

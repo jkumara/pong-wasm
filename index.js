@@ -114,7 +114,6 @@ const init = async emsdkEnvironment => {
     requestAnimationFrame(main);
 
     const delta = currentTickTime - previousTickTime;
-    console.log(delta);
 
     const player1dir =
       keyboard.isKeyDown(KEYS.W) ? DIR.UP :
